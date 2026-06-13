@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Все курсы{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:dashboard' %}">Панель</a></li>
+        <li class="breadcrumb-item active">Курсы</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4"><i class="bi bi-book"></i> Все курсы</h2>
+
+<div class="row">
+    {% for course in courses %}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ course.title }}</h5>
+                <p class="card-text text-muted">{{ course.description|truncatewords:15|default:"Описание отсутствует" }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge {% if course.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ course.get_status_display }}
+                    </span>
+                    <small class="text-muted">{{ course.tests_count }} тестов • {{ course.students_count }} студентов</small>
+                </div>
+            </div>
+            <div class="card-footer bg-white">
+                <a href="{% url 'teacher:course_detail' course.id %}" class="btn btn-sm btn-primary">Подробнее</a>
+                <a href="/admin/courses/course/{{ course.id }}/change/" class="btn btn-sm btn-outline-secondary">Редактировать</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">Курсы пока не созданы. <a href="/admin/courses/course/add/">Создать курс</a></div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

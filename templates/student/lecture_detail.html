@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}{{ lecture.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'student:dashboard' %}">Курсы</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'student:course_detail' lecture.course.id %}">{{ lecture.course.title }}</a></li>
+        <li class="breadcrumb-item active">{{ lecture.title }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Основной контент -->
+    <div class="col-md-9">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="mb-3">{{ lecture.title }}</h2>
+                
+                <!-- Видео -->
+                {% if lecture.video_url %}
+                <div class="ratio ratio-16x9 mb-4">
+                    <iframe src="{{ lecture.video_url }}" allowfullscreen></iframe>
+                </div>
+                {% endif %}
+                
+                <!-- Файл для скачивания -->
+                {% if lecture.file %}
+                <div class="alert alert-info d-flex align-items-center mb-4">
+                    <i class="bi bi-file-earmark-pdf fs-2 me-3"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="mb-1">Материалы лекции</h5>
+                        <a href="{{ lecture.file.url }}" target="_blank" class="btn btn-primary btn-sm">
+                            <i class="bi bi-download"></i> Скачать файл ({{ lecture.file_name }})
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Текст лекции -->
+                {% if lecture.content %}
+                <div class="lecture-content">
+                    {{ lecture.content|safe }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Навигация -->
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'student:course_detail' lecture.course.id %}" class="btn btn-outline-secondary">
+                ← К курсу
+            </a>
+            <a href="{% url 'student:dashboard' %}" class="btn btn-outline-primary">
+                Все курсы
+            </a>
+        </div>
+    </div>
+    
+    <!-- Боковая панель со списком лекций -->
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">📚 Лекции курса</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for lec in all_lectures %}
+                <a href="{% url 'student:lecture_detail' lec.id %}" 
+                   class="list-group-item list-group-item-action {% if lec.id == current_lecture.id %}active{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <small>{{ forloop.counter }}. {{ lec.title|truncatewords:5 }}</small>
+                        {% if lec.file or lec.video_url %}
+                        <small>
+                            {% if lec.file %}<i class="bi bi-paperclip"></i>{% endif %}
+                            {% if lec.video_url %}<i class="bi bi-camera-video"></i>{% endif %}
+                        </small>
+                        {% endif %}
+                    </div>
+                </a>
+                {% empty %}
+                <div class="list-group-item text-muted">Лекций пока нет</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

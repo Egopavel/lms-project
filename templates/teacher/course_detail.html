@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }}{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:dashboard' %}">Панель</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_list' %}">Курсы</a></li>
+        <li class="breadcrumb-item active">{{ course.title }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ course.title }}</h2>
+    <span class="badge {% if course.status == 'published' %}bg-success{% else %}bg-secondary{% endif %}">
+        {{ course.get_status_display }}
+    </span>
+</div>
+
+<p class="text-muted">{{ course.description }}</p>
+<p><small>Автор: {{ course.author.get_full_name|default:course.author.username }} | Создан: {{ course.created_at|date:"d.m.Y" }}</small></p>
+
+<h4 class="mt-4 mb-3"><i class="bi bi-clipboard-check"></i> Тесты курса</h4>
+
+{% if tests %}
+<div class="list-group mb-4">
+    {% for test in tests %}
+    <div class="list-group-item list-group-item-action">
+        <div class="d-flex w-100 justify-content-between align-items-center">
+            <div>
+                <h5 class="mb-1">{{ test.title }}</h5>
+                <p class="mb-1 text-muted">{{ test.questions.count }} вопросов • {{ test.time_limit }} мин • Проходной: {{ test.passing_score }}%</p>
+            </div>
+            <div class="text-end">
+                <div class="mb-2">
+                    <small class="text-muted">{{ test.results_count }} попыток</small><br>
+                    <small class="text-muted">Средний: {{ test.avg_score|floatformat:1 }}</small>
+                </div>
+                <a href="{% url 'teacher:test_results' test.id %}" class="btn btn-sm btn-primary">Результаты</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">В этом курсе пока нет тестов. <a href="/admin/tests/test/add/">Создать тест</a></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Студенты{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:dashboard' %}">Панель</a></li>
+        <li class="breadcrumb-item active">Студенты</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4"><i class="bi bi-people"></i> Список студентов</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Email</th>
+                        <th>Подразделение</th>
+                        <th>Пройдено тестов</th>
+                        <th>Всего попыток</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.get_full_name|default:student.username }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>{{ student.department|default:"—" }}</td>
+                        <td><span class="badge bg-success">{{ student.tests_passed }}</span></td>
+                        <td>{{ student.tests_total }}</td>
+                        <td>
+                            <a href="{% url 'teacher:student_progress' student.id %}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-graph-up"></i> Прогресс
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">Студенты не найдены</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

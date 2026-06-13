@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Панель преподавателя{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-chalkboard-teacher"></i> Панель преподавателя</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-primary text-white shadow-sm">
+            <h5>Курсов</h5>
+            <h2>{{ courses.count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-success text-white shadow-sm">
+            <h5>Студентов</h5>
+            <h2>{{ total_students }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-info text-white shadow-sm">
+            <h5>Тестов</h5>
+            <h2>{{ total_tests }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-warning text-dark shadow-sm">
+            <h5>Средний балл</h5>
+            <h2>{{ avg_score }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-people"></i> Мои студенты</h5>
+                <a href="{% url 'teacher:my_students' %}" class="btn btn-sm btn-primary">Все студенты</a>
+            </div>
+            <div class="card-body">
+                <h2 class="text-center text-success">{{ total_students }}</h2>
+                <p class="text-center text-muted">Закреплено за вами</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-book"></i> Мои курсы</h5>
+                <a href="{% url 'teacher:course_list' %}" class="btn btn-sm btn-primary">Все курсы</a>
+            </div>
+            <div class="card-body">
+                {% if courses %}
+                <ul class="list-group list-group-flush">
+                    {% for course in courses|slice:":5" %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="{% url 'teacher:course_detail' course.id %}">{{ course.title }}</a>
+                        <span class="badge bg-primary rounded-pill">{{ course.tests.count }} тестов</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted">У вас пока нет курсов.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Последние результаты</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_results %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Студент</th>
+                                <th>Тест</th>
+                                <th>Балл</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in recent_results %}
+                            <tr>
+                                <td>{{ result.student.get_full_name|default:result.student.username }}</td>
+                                <td>{{ result.test.title }}</td>
+                                <td>{{ result.score }}/{{ result.max_score }}</td>
+                                <td>
+                                    <span class="badge {% if result.passed %}bg-success{% else %}bg-danger{% endif %}">
+                                        {{ result.passed|yesno:"Сдан,Не сдан" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">Пока нет результатов тестов.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

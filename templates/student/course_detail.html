@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'student:dashboard' %}">Курсы</a></li>
+        <li class="breadcrumb-item active">{{ course.title }}</li>
+    </ol>
+</nav>
+
+<h2 class="mb-3">{{ course.title }}</h2>
+<p class="text-muted">{{ course.description }}</p>
+
+<!--  ЛЕКЦИИ -->
+{% if lectures %}
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-book"></i> Лекции курса</h5>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for lecture in lectures %}
+        <a href="{% url 'student:lecture_detail' lecture.id %}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">{{ forloop.counter }}. {{ lecture.title }}</h6>
+                    {% if lecture.content %}
+                    <small class="text-muted">{{ lecture.content|truncatewords:10 }}</small>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    {% if lecture.duration %}
+                    <small class="text-muted d-block">{{ lecture.duration }} мин</small>
+                    {% endif %}
+                    {% if lecture.file %}
+                    <i class="bi bi-paperclip text-primary" title="Есть файл"></i>
+                    {% endif %}
+                    {% if lecture.video_url %}
+                    <i class="bi bi-camera-video text-primary ms-1" title="Есть видео"></i>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+<<!-- ТЕСТЫ -->
+<h4 class="mt-4 mb-3"><i class="bi bi-clipboard-check"></i> Тесты курса</h4>
+<div class="list-group mb-4">
+    {% for test in tests %}
+    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-1">{{ test.title }}</h5>
+            <small class="text-muted">
+                {{ test.questions.count }} вопросов • {{ test.time_limit }} мин • 
+                Проходной: {{ test.passing_score }}%
+            </small>
+        </div>
+        <div>
+            <!-- 🔥 ПРОВЕРКА: Если попыток меньше, чем разрешено -->
+            {% if test.attempts_count < test.max_attempts %}
+                <a href="{% url 'student:take_test' test.id %}" class="btn btn-sm btn-primary">
+                    {% if test.attempts_count > 0 %}
+                        Повторить ({{ test.attempts_count }}/{{ test.max_attempts }})
+                    {% else %}
+                        Пройти тест
+                    {% endif %}
+                </a>
+            {% else %}
+                <!-- Если попытки закончились -->
+                <a href="{% url 'student:test_result' test.id %}" class="btn btn-sm btn-outline-secondary">
+                    Посмотреть результат
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="alert alert-info">В этом курсе пока нет тестов.</div>
+    {% endfor %}
+</div>
+
+<a href="{% url 'student:dashboard' %}" class="btn btn-outline-secondary">← Назад к курсам</a>
+{% endblock %}

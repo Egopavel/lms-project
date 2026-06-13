@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Прогресс: {{ student.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'teacher:dashboard' %}">Панель</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'teacher:my_students' %}">Мои студенты</a></li>
+            <li class="breadcrumb-item active">{{ student.get_full_name|default:student.username }}</li>
+        </ol>
+    </nav>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>👤 {{ student.get_full_name|default:student.username }}</h2>
+        <span class="badge bg-primary fs-5">Подразделение: {{ student.department|default:"—" }}</span>
+    </div>
+
+    <!-- Карточки статистики -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Сдал тестов</h5>
+                    <p class="display-6 text-success">{{ passed_tests }} / {{ total_tests }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Средний балл</h5>
+                    <p class="display-6 text-info">{{ avg_score }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Всего попыток</h5>
+                    <p class="display-6 text-warning">{{ total_tests }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Таблица результатов -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">📊 История прохождений тестов</h5>
+        </div>
+        <div class="card-body">
+            {% if results %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Тест</th>
+                            <th>Курс</th>
+                            <th>Балл</th>
+                            <th>Проходной %</th>
+                            <th>Попытка</th>
+                            <th>Дата</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+                        <tr>
+                            <td><strong>{{ result.test.title }}</strong></td>
+                            <td>{{ result.test.course.title }}</td>
+                            <td>
+                                <span class="badge {% if result.passed %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ result.score }} / {{ result.max_score }}
+                                </span>
+                            </td>
+                            <td>{{ result.test.passing_score }}%</td>
+                            <td>{{ result.attempt_number }}</td>
+                            <td>{{ result.completed_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                {% if result.passed %}
+                                    <span class="badge bg-success">Сдан</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Не сдан</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info text-center mb-0">
+                <i class="bi bi-info-circle"></i> У студента пока нет результатов тестов.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

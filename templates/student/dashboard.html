@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+<h2 class="mb-4">Добро пожаловать, {{ user.get_full_name|default:user.username }}!</h2>
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center p-3 bg-white shadow-sm">
+            <h5 class="text-muted">Доступных курсов</h5>
+            <h2 class="text-primary">{{ courses.count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center p-3 bg-white shadow-sm">
+            <h5 class="text-muted">Сданных тестов</h5>
+            <h2 class="text-success">{{ completed_count }}</h2>
+        </div>
+    </div>
+</div>
+<h4 class="mb-3">Доступные курсы</h4>
+<div class="row">
+    {% for course in courses %}
+    <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ course.title }}</h5>
+                <p class="card-text text-muted">{{ course.description|truncatewords:15|default:"Описание отсутствует" }}</p>
+                <a href="{% url 'student:course_detail' course.id %}" class="btn btn-primary btn-sm">Перейти к курсу</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12"><div class="alert alert-info">Пока нет опубликованных курсов.</div></div>
+    {% endfor %}
+</div>
+{% if results %}
+<h4 class="mt-4 mb-3">Последние результаты</h4>
+<table class="table table-striped bg-white shadow-sm">
+    <thead><tr><th>Тест</th><th>Результат</th><th>Статус</th><th>Дата</th></tr></thead>
+    <tbody>
+        {% for r in results %}
+        <tr>
+            <td>{{ r.test.title }}</td>
+            <td>{{ r.score }} / {{ r.max_score }}</td>
+            <td><span class="badge {% if r.passed %}bg-success{% else %}bg-danger{% endif %}">{{ r.passed|yesno:"Сдан,Не сдан" }}</span></td>
+            <td>{{ r.completed_at|date:"d.m.Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

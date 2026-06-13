@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Результат теста{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow text-center p-4">
+            <h2 class="mb-3">Результат</h2>
+            <h1 class="display-4 mb-3">{{ result.score }} / {{ result.max_score }}</h1>
+            <div class="mb-3">
+                <span class="badge {% if result.passed %}bg-success{% else %}bg-danger{% endif %} fs-5 p-2">
+                    {% if result.passed %}Тест сдан! {% else %}Тест не сдан {% endif %}
+                </span>
+            </div>
+            <p class="text-muted">Проходной балл: {{ result.test.passing_score }}%</p>
+            <p>Попытка: {{ result.attempt_number }} из {{ result.test.max_attempts }}</p>
+            <hr>
+            <a href="{% url 'student:course_detail' result.test.course.id %}" class="btn btn-primary">Вернуться к курсу</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

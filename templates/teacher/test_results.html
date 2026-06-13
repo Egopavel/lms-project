@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Результаты: {{ test.title }}{% endblock %}
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'teacher:dashboard' %}">Панель</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'teacher:course_detail' test.course.id %}">{{ test.course.title }}</a></li>
+        <li class="breadcrumb-item active">{{ test.title }}</li>
+    </ol>
+</nav>
+
+<h2 class="mb-4">{{ test.title }}</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-white shadow-sm">
+            <h5 class="text-muted">Всего попыток</h5>
+            <h2 class="text-primary">{{ total_attempts }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-white shadow-sm">
+            <h5 class="text-muted">Сдано</h5>
+            <h2 class="text-success">{{ passed_count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-white shadow-sm">
+            <h5 class="text-muted">Процент сдачи</h5>
+            <h2 class="text-info">{{ pass_rate }}%</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center p-3 bg-white shadow-sm">
+            <h5 class="text-muted">Средний балл</h5>
+            <h2 class="text-warning">{{ avg_score }}</h2>
+        </div>
+    </div>
+</div>
+
+<h4 class="mb-3">Все результаты</h4>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Студент</th>
+                        <th>Балл</th>
+                        <th>Попытка</th>
+                        <th>Статус</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>
+                            <strong>{{ result.student.get_full_name|default:result.student.username }}</strong><br>
+                            <small class="text-muted">{{ result.student.email }}</small>
+                        </td>
+                        <td>{{ result.score }} / {{ result.max_score }}</td>
+                        <td>{{ result.attempt_number }}</td>
+                        <td>
+                            <span class="badge {% if result.passed %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ result.passed|yesno:"Сдан,Не сдан" }}
+                            </span>
+                        </td>
+                        <td>{{ result.completed_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Пока нет результатов</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
